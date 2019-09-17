@@ -1,0 +1,547 @@
+---
+title: "For loops, IFELSE and Regex"
+author: "Jennifer Chicchi"
+date: "8/20/2019"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd('C:/Users/Canidium User/Desktop/Canidium/Code files')
+```
+
+## For loops
+
+It's a good idea to practice making for loops in R.
+This is an example to count the number of even numbers in a vector:
+
+&nbsp;
+
+```{r}
+x <- c(2,5,3,9,8,11,6)
+count <- 0
+for (val in x) {
+        if(val %% 2 == 0)  count = count+1
+}
+print(count)
+```
+
+&nbsp;
+
+Loops are iterative structures that execute a sequence of code n times. 
+They have the following components:
+1) A vector of values to 'iterate' over
+2) An index that keeps track of the current iteration
+3) Code to execute
+
+```{r}
+for(i in 1:5){
+        print(i*10)
+}
+```
+
+&nbsp;
+
+```{r}
+#In example above, the vector of values is c(1, 2, 3, 4, 5) aka 1:5
+#Index is 'i'
+#Code to execute on each iteration is 'print(i*10)'
+```
+
+&nbsp;
+
+Typically the vector of values to iterate over
+will be incremental in units of 1, such as above. However, it doesn't have to be. 
+See below where are vector of values is 1, 3, 5, 8. 
+
+```{r}
+for(i in c(1,3,5,8)){
+        print(i*10)
+}
+```
+
+&nbsp;
+
+The vector of values need not start at 1
+
+```{r}
+for(i in 3:5){
+        print(i*10)
+}
+```
+
+&nbsp;
+
+You can also name the index arbitrarily (by convention people use i and j)
+But it can be any variable name, such as 'our_index'
+
+```{r}
+for(our_index in 1:5){
+        print(our_index*10)
+}
+```
+
+&nbsp;
+
+Let's read in heights file to explore loops using some data on heights of husband-wife pairs. 
+
+```{r}
+heights <- read.delim('spouseheights.txt')
+str(heights)
+head(heights)
+```
+
+&nbsp;
+
+```{r}
+#Bad use of for loop header (because 'hard-coding' the number of df rows)
+#You can use the form 'df$column[index]' to get the i-th value of that column. 
+#heights is the data frame, what follows $ is the variable name
+#$ tells us return the wife column
+#the index is a location-that is in brackets
+```
+
+&nbsp;
+
+```{r}
+for(i in 1:5){
+        print(paste("Wife", i, "height =", heights$wife[i]))
+}
+```
+
+Good use of for loop header (because NOT hard-coding the number of df rows)
+
+```{r}
+for(i in 1:nrow(heights)){
+        print(paste("Wife", i, "height =", heights$wife[i]))
+}
+```
+
+Use for loop to calculate and print difference of husband-wife height
+replacing 96 with nrow-the number of rows(heights)
+Tomorrow if we get e.g. 97 rows, we don't have to change the for loop
+the husband's height at the first row, the wife's height at the first row, etc. through to the ith row
+
+```{r}
+for(i in 1:nrow(heights)){
+        h.height = heights$husband[i] #indexing by row of column
+        w.height = heights$wife[i]
+        diff = h.height-w.height
+        print(paste("The height difference in pair", i, "is", diff, "inches"))
+}
+```
+
+the column 1, 2 etc. is the specific location here but could do 'husband' or 'wife' instead-slightly more informative
+
+```{r}
+for(i in 1:nrow(heights)){
+        h.height = heights[i,1] #indexing by specific [row,col] point
+        w.height = heights[i,2]
+        diff = h.height-w.height
+        print(paste("The height difference in pair", i, "is", diff, "inches"))
+}
+```
+
+Filling up a storage bin with a for loop
+Sidenote: could also create an empty storage bin of type character or logical
+For logical, FALSE is represented by a 0, TRUE by a 1
+
+```{r}
+storage.bin <- numeric(20) # create empty storage bin of length 20 with numeric data type
+storage.bin
+for(i in 1:length(storage.bin)){
+        storage.bin[i] <- i*10
+}
+storage.bin
+```
+
+part of the storage bin is empty
+
+```{r}
+storage.bin <- numeric(20)
+storage.bin
+for(i in 1:10){
+        storage.bin[i] <- i*10
+}
+storage.bin
+```
+
+Modifying that storage bin
+
+```{r}
+for(i in 1:length(storage.bin)){
+        storage.bin[i] <- floor(rnorm(1, mean = 8, sd = 4))
+}
+storage.bin
+```
+
+Nested for loops
+You can nest a for loop within another for loop
+Note: MUST use two separate indices (e.g. i and j)
+output will be 1 80 90 100 2 80 90 100 3 80 90 100
+
+```{r}
+for(i in 1:3){
+        print(i)
+        for(j in 8:10){
+                print(j*10)
+        }
+}
+```
+
+IFELSE
+It's a good idea to practice making if/else statements in R
+Here is a really basic if/else statement: 
+```{r}
+x <- -5
+if(x > 0){
+        print("Positive number")
+} else {
+        print("Negative number")
+}
+```
+
+If/else statements are simple. It follows this format:
+
+If a condition is met 
+      execute some code
+ Otherwise 
+      execute some other code
+
+```{r}
+x <- 1
+if (x > 0){
+        print('Hello')
+} else {
+        print('Goodbye')
+}
+```
+
+In this example, let's assign grades to our students:
+
+```{r}
+grades <- c(75, 80, 85, 90, 95, 100, 88, 92, 78, 72, 65, 60, 40, 20, 50, 74, 84, 0, 100, 88)
+
+grade_bin <- character(20) #Create an empty storage bin for storing letter grades
+
+a_grade <- 74
+if (a_grade > 90){ #first rule out the smallest subset of conditions: only 10 values
+        print('A')
+} else if (a_grade > 80){ #then rule out a bigger subset: 20 values
+        print('B')
+} else if (a_grade > 70){
+        print('C')
+} else if (a_grade > 60){
+        print('D')
+} else {      #if it doesn't meet any of the above conditions
+        print('F')
+}
+```
+
+Using a for loop to assign grades to each of the students based on the grades vector 
+
+```{r}
+grades2 <- c(75, 80, 85, 90, 95, 100, 88, 92, 78, 72, 65, 60, 40, 20, 50, 74, 84, 0, 100, 88)
+for (i in grades2){
+        if (i >= 90){
+                print(LETTERS[1])
+        } else if (i >= 80){ 
+                print(LETTERS[2])
+        } else if (i >= 70){
+                print(LETTERS[3])
+        } else if (i >= 60){
+                print(LETTERS[4])
+        } else {                   
+                print(LETTERS[6])
+        }
+}     
+```
+
+tall couples (both greater than 175)-having both together is going to be a subset.
+Fewer tall couples (both husband and wife) than just tall husband or tall wife
+ tall husband
+ tall wife
+ short couples
+ if/else useful for huge datasets where you need to classify things
+
+```{r}
+couples.height.bin <- character(nrow(heights))
+for(i in 1:nrow(heights)){
+        if(heights[i, 'husband'] > 175 & heights[i, 'wife'] > 175){
+                couples.height.bin[i] <- 'tall couple'
+        } else if (heights[i, 'husband'] > 175){
+                couples.height.bin[i] <- 'tall husband'
+        } else if (heights[i, 'wife'] > 175){
+                couples.height.bin[i] <- 'tall wife'
+        } else {
+                couples.height.bin[i] <- 'short couple'
+        }
+}
+table(couples.height.bin)    
+```
+
+&nbsp;
+
+```{r}
+# If logic within for loops
+# Check if number is even using the modulus (%%) operator
+# it gives you the remainder-useful for randomizing something
+```
+
+
+&nbsp;
+
+```{r}
+10 %% 2
+9 %% 2
+9 %% 4
+9 %% 5
+
+storage.bin <- numeric(10)
+for (i in 1:10){
+        if(i%%2 == 0){
+                storage.bin[i] <- "even"
+        } else {
+                storage.bin[i] <- "odd"
+        }
+}
+storage.bin
+
+```
+
+Check whether the husband or wife is taller 
+
+```{r}
+for(i in 1:nrow(heights)){
+        diff = heights[i,1] - heights[i,2]
+        if(diff > 0){
+                print("Husband is taller.")
+        } else {
+                print("Wife is taller.")
+        }
+}
+```
+
+ Count how many couples in which male height exceeds female height
+
+ Declare count in global environment and update it within for loop
+ counter- a way to keep a running total-count up by 1 only when difference is greater than 0
+
+```{r}
+count <- 0
+for (i in 1:nrow(heights)){
+        diff = heights[i,1] - heights[i,2]
+        if (diff > 0){
+                count <- count + 1
+        }
+}
+
+count #91
+```
+
+ Count how many couples in which female height equals or exceeds male height
+ 
+```{r}
+tallerWifeCount = 0
+for (i in 1:nrow(heights)){
+        diff = heights[i,1] - heights[i,2]
+        if (diff <= 0){
+                tallerWifeCount <- tallerWifeCount + 1
+        }
+}
+
+count #5
+```
+
+REGEX
+
+Text cleaning
+find patterns in strings-e.g. scan for phone numbers or credit card numbers in databases
+Therefore, avoid PCI violations
+ A set of character matching patterns
+can Google these rules as needed
+get regular expression=grep
+ . (dot): matches any single character, as shown below.
+
+```{r}
+strings <- c("^ab", "ab", "abc", "abd", "abe", "ab 12", "ab13")
+strings
+grep("ab.", strings, value = TRUE)
+grep(".ab", strings, value = TRUE)
+grep(".ab.", strings, value = TRUE)
+grep("ab..", strings, value = TRUE)
+grep("ab...", strings, value = TRUE)
+```
+
+```{r}
+#[...]: a character list, matches any one of the characters inside the square 
+ #brackets. We can also use  - inside the brackets to specify a range of characters.
+```
+
+ 
+```{r}
+grep("ab[c-e]", strings, value = TRUE)
+grep("ab[cde]", strings, value = TRUE)
+grep("ab[cde1]", strings, value = TRUE)
+grep("ab[ce]", strings, value = TRUE)
+```
+
+
+```{r}
+#[^...]: an inverted character list, similar to [...], but matches any characters 
+# except those inside the square brackets.
+```
+
+
+```{r}
+grep("ab[^c]", strings, value = TRUE)
+```
+
+
+ \: suppress the special meaning of metacharacters in regular expression, 
+ i.e.  $ * + . ? [ ] ^ { } | ( ) \, similar to its usage in escape sequences. 
+ Since \ itself needs to be escaped in R, we need to escape these metacharacters 
+ with double backslash like \\$.
+ 
+ 
+```{r}
+grep("^ab", strings, value = TRUE)
+grep("\\^ab", strings, value = TRUE) #using escape sequence
+```
+
+|: an 'or' operator, matches patterns on either side of the |
+
+```{r}
+grep("abc|abd", strings, value = TRUE)
+```
+
+Character classes
+
+ Character classes allows to specify entire classes of characters, 
+ such as numbers, letters, etc. There are two flavors of character classes, 
+ one uses [: and :] around a predefined name inside square brackets and the 
+ other uses \ and a special character. They are sometimes interchangeable.
+ 
+ 
+```{r}
+more_strings <- c('123', '123abc', '2019-08-28', '90%', 'hello', 'Hello', 'HI!!!',
+                  'goodBye', 'CAPITAL LETTERS', '$100')
+```
+
+```{r}
+# [:digit:] or \d: digits, 0 1 2 3 4 5 6 7 8 9, equivalent to [0-9]
+
+```
+
+ digit or \d: digits, 0 1 2 3 4 5 6 7 8 9, equivalent to 0-9
+
+```{r}
+grep("[0-9]", more_strings, value = TRUE)
+grep("\\d", more_strings, value = TRUE)
+grep("[[:digit:]]", more_strings, value = TRUE)
+```
+
+```{r}
+#[:lower:]: lower-case letters, equivalent to [a-z]
+```
+
+```{r}
+grep("[a-z]", more_strings, value = TRUE)
+grep("[[:lower:]]", more_strings, value = TRUE)
+```
+
+```{r}
+#[:alpha:]: alphabetic characters, equivalent to [[:lower:][:upper:]] or [A-z]
+```
+
+```{r}
+grep("[A-Z]", more_strings, value = TRUE)
+grep("[[:upper:]]", more_strings, value = TRUE)
+```
+
+```{r}
+#- [:alpha:]: alphabetic characters, equivalent to [[:lower:][:upper:]] or [A-z]
+
+```
+
+
+```{r}
+grep("[[:alpha:]]", more_strings, value = TRUE)
+grep("[[:lower:][:upper:]]", more_strings, value = TRUE)
+grep("[A-z]", more_strings, value = TRUE)
+```
+
+```{r}
+#[:alnum:]: alphanumeric characters, equivalent to [[:alpha:][:digit:]] or [A-z0-9]
+```
+
+```{r}
+grep("[[:alnum:]]", more_strings, value = TRUE)
+grep("[[:alpha:][:digit:]]", more_strings, value = TRUE)
+grep("[A-z0-9]", more_strings, value = TRUE)
+```
+
+```{r}
+# \w: word characters, equivalent to [[:alnum:]] or [A-z0-9]
+```
+
+
+```{r}
+grep("\\w", more_strings, value = TRUE)
+grep("[A-z0-9_]", more_strings, value = TRUE)
+```
+
+```{r}
+# \W: not word, equivalent to [^A-z0-9_]
+```
+
+
+```{r}
+grep("[^A-z0-9_]", more_strings, value = TRUE)
+```
+
+[:blank:]: blank characters, i.e. space and tab.
+
+```{r}
+grep("[[:blank:]]", more_strings, value = TRUE)
+```
+
+```{r}
+#[:space:]: space characters: tab, newline, vertical tab, form feed, carriage return, space.
+```
+
+You might want to remove in all whitespace e.g. data entry errors w/person typing in zipcode
+
+```{r}
+grep("[[:space:]]", more_strings, value = TRUE)
+```
+ 
+```{r}
+ #[:punct:]: punctuation characters, ! " # $ % & â ( ) * + , - . / : ; < = > ? @ [  ] ^ _ ` { | } ~.
+```
+ 
+removing punctuations- cleaning text
+
+```{r}
+grep("[[:punct:]]", more_strings, value = TRUE)
+```
+
+gsub(pattern, replacement, looks in string or vector of strings)
+
+```{r}
+gsub("[[:punct:]]", 'xxx', more_strings)
+```
+
+function will just remove all punctuation from data
+
+```{r}
+gsub("[[:punct:]]", '', more_strings)
+```
+
+ 
