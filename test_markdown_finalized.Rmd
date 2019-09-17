@@ -18,7 +18,7 @@ opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
 ```
 
 ```{r, echo=FALSE}
-setwd("~/Google Drive/Tutoring/Jennifer Wolf/NLP")
+setwd('C:/Users/Canidium User/Desktop/Canidium/Code files')
 ```
 
 
